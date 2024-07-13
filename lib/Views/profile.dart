@@ -7,7 +7,7 @@ import 'package:flutter_sqlite_auth_app/pages/home_page.dart'; // Import HomePag
 
 class Profile extends StatelessWidget {
   final Users? profile;
-  const Profile({super.key, this.profile});
+  const Profile({super.key, required this.profile});
 
   @override
   Widget build(BuildContext context) {

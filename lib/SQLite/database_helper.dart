@@ -24,10 +24,10 @@ class DatabaseHelper {
   CREATE TABLE articles (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     Ref_article TEXT NOT NULL,
-    Designation_article TEXT NOT NULL
+    Designation_article TEXT NOT NULL,
+    Code_a_barres INTEGER   
   )
   ''';
-
   String _stockTable = '''
   CREATE TABLE stock (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,10 +50,17 @@ class DatabaseHelper {
     final databasePath = await getDatabasesPath();
     final path = join(databasePath, _databaseName);
 
-    return openDatabase(path, version: 2, onCreate: (db, version) async {
+    return openDatabase(path, version: 3, onCreate: (db, version) async {
       await db.execute(_userTable);
       await db.execute(_articleTable);
       await db.execute(_stockTable);
+    }, onUpgrade: (db, oldVersion, newVersion) async {
+      // Migration: add the Code_a_barres column
+      if (oldVersion < 3) {
+        // Provide a default value (e.g., 0)
+        await db
+            .execute('ALTER TABLE articles ADD COLUMN Code_a_barres INTEGER ');
+      }
     });
   }
 
@@ -93,12 +100,30 @@ class DatabaseHelper {
 
   Future<int> updateArticle(Article article) async {
     final db = await database;
-    return await db.update(
-      "articles",
-      article.toMap(),
-      where: 'id = ?',
-      whereArgs: [article.id],
-    );
+
+    // Create the map for the update, only including non-null or non-empty values
+    final updateData = <String, dynamic>{};
+    if (article.refArticle.isNotEmpty) {
+      updateData['Ref_article'] = article.refArticle;
+    }
+    if (article.designationArticle.isNotEmpty) {
+      updateData['Designation_article'] = article.designationArticle;
+    }
+    if (article.codeABarres != null) {
+      updateData['Code_a_barres'] = article.codeABarres;
+    }
+
+    // Perform the update if there are any values to update
+    if (updateData.isNotEmpty) {
+      return await db.update(
+        "articles",
+        updateData,
+        where: 'id = ?',
+        whereArgs: [article.id],
+      );
+    } else {
+      return 0; // No changes were made
+    }
   }
 
   Future<int> deleteArticle(int id) async {
@@ -112,11 +137,27 @@ class DatabaseHelper {
       "stock",
       {
         'dateStock': stock.dateStock.toIso8601String(),
-        'article': stock.article.id,
+        'article': stock.articleId, // Use articleId
         'quantite': stock.quantite,
       },
     );
   }
 
+  Future<List<Stock>> getStocks() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'stock',
+      columns: [
+        'stock.id',
+        'dateStock',
+        'stock.article', // Select 'article' from 'stock' table
+        'quantite',
+      ],
+      where: 'stock.article = articles.id', // Join condition in where
+    );
+    return List.generate(maps.length, (i) {
+      return Stock.fromMap(maps[i]);
+    });
+  }
   // Add CRUD methods for Stock if needed (e.g., getStock, updateStock, deleteStock)
 }

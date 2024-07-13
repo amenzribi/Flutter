@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sqlite_auth_app/models/article.dart';
 import 'package:flutter_sqlite_auth_app/pages/stock_page.dart';
-
 import 'package:flutter_sqlite_auth_app/SQLite/database_helper.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,6 +16,7 @@ class _HomePageState extends State<HomePage> {
   final _formKey = GlobalKey<FormState>();
   final _refArticleController = TextEditingController();
   final _designationArticleController = TextEditingController();
+  final _codeABarresController = TextEditingController();
 
   List<Article> _articles = [];
 
@@ -30,6 +30,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _refArticleController.dispose();
     _designationArticleController.dispose();
+    _codeABarresController.dispose();
     super.dispose();
   }
 
@@ -44,17 +45,20 @@ class _HomePageState extends State<HomePage> {
         id: 0,
         refArticle: _refArticleController.text,
         designationArticle: _designationArticleController.text,
+        codeABarres: int.tryParse(_codeABarresController.text) ?? 0,
       );
       await _databaseService.insertArticle(newArticle);
       _loadArticles();
       _refArticleController.clear();
       _designationArticleController.clear();
+      _codeABarresController.clear();
     }
   }
 
   Future<void> _updateArticle(Article article) async {
     _refArticleController.text = article.refArticle;
     _designationArticleController.text = article.designationArticle;
+    _codeABarresController.text = article.codeABarres.toString();
 
     showDialog(
       context: context,
@@ -89,6 +93,18 @@ class _HomePageState extends State<HomePage> {
                   labelText: 'Désignation Article',
                 ),
               ),
+              TextFormField(
+                controller: _codeABarresController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Veuillez saisir un code à barres';
+                  }
+                  return null;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Code à Barres',
+                ),
+              ),
             ],
           ),
         ),
@@ -100,16 +116,21 @@ class _HomePageState extends State<HomePage> {
           TextButton(
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
+                final codeABarres =
+                    int.tryParse(_codeABarresController.text) ?? 0;
+
                 final updatedArticle = Article(
                   id: article.id,
                   refArticle: _refArticleController.text,
                   designationArticle: _designationArticleController.text,
+                  codeABarres: codeABarres,
                 );
                 await _databaseService.updateArticle(updatedArticle);
                 _loadArticles();
                 Navigator.pop(context);
                 _refArticleController.clear();
                 _designationArticleController.clear();
+                _codeABarresController.clear();
               }
             },
             child: const Text('Enregistrer'),
@@ -185,6 +206,18 @@ class _HomePageState extends State<HomePage> {
                     },
                     decoration: const InputDecoration(
                       labelText: 'Désignation Article',
+                    ),
+                  ),
+                  TextFormField(
+                    controller: _codeABarresController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez saisir un code à barres';
+                      }
+                      return null;
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Code à Barres',
                     ),
                   ),
                   const SizedBox(height: 16.0),
