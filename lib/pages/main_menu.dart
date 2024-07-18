@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sqlite_auth_app/models/article.dart';
-import 'package:flutter_sqlite_auth_app/pages/stock_page.dart';
-
+import 'package:flutter_sqlite_auth_app/pages/entete_list_page.dart'; // Change import
 import 'package:flutter_sqlite_auth_app/pages/home_page.dart';
 import 'package:flutter_sqlite_auth_app/Views/profile.dart'; // Import Profile
 
@@ -41,9 +40,9 @@ class MainMenu extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/stock');
+                Navigator.pushNamed(context, '/entete');
               },
-              child: const Text('Mouvement Sortie'),
+              child: const Text('Entete'),
             ),
           ],
         ),

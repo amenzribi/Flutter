@@ -4,9 +4,12 @@ import 'package:flutter_sqlite_auth_app/JSON/users.dart';
 import 'package:flutter_sqlite_auth_app/Views/auth.dart';
 import 'package:flutter_sqlite_auth_app/Views/profile.dart';
 import 'package:flutter_sqlite_auth_app/models/article.dart';
+import 'package:flutter_sqlite_auth_app/pages/entete_form_page.dart';
+import 'package:flutter_sqlite_auth_app/pages/entete_list_page.dart';
 import 'package:flutter_sqlite_auth_app/pages/home_page.dart';
 import 'package:flutter_sqlite_auth_app/pages/main_menu.dart';
-import 'package:flutter_sqlite_auth_app/pages/stock_page.dart';
+import 'package:flutter_sqlite_auth_app/pages/add_stock_page.dart'; // Import AddStockPage
+import 'package:flutter_sqlite_auth_app/pages/stock_form.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
@@ -47,12 +50,21 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => Profile(
             profile: ModalRoute.of(context)!.settings.arguments
                 as Users?), // Pass the user details
-        '/article': (context) => const HomePage(), // Route for ArticlePage
-        '/stock': (context) => const StockPage(), // Route for StockPage
+        '/article': (context) => const HomePage(),
+        '/entete': (context) => const EnteteListPage(),
+        '/entete_form': (context) =>
+            const EnteteFormPage(), // New route for adding entete
+        '/add_stock': (context) => AddStockPage(
+              enteteId: (ModalRoute.of(context)!.settings.arguments
+                      as Map<String, dynamic>?)?['enteteId'] ??
+                  0, // Corrected line
+            ), // Add this line
+        '/stock_form': (context) => StockForm(
+              enteteId: (ModalRoute.of(context)!.settings.arguments
+                      as Map<String, dynamic>?)?['enteteId'] ??
+                  0, // Corrected line
+            ),
       },
-      // routes: {
-      //    '/auth': (context) => const AuthScreen(),
-      //  },
     );
   }
 }

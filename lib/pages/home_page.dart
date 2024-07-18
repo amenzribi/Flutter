@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sqlite_auth_app/models/article.dart';
-import 'package:flutter_sqlite_auth_app/pages/stock_page.dart';
 import 'package:flutter_sqlite_auth_app/SQLite/database_helper.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,7 +12,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final DatabaseHelper _databaseService = DatabaseHelper.instance;
 
-  final _formKey = GlobalKey<FormState>();
+  final _addFormKey = GlobalKey<FormState>();
+  final _updateFormKey = GlobalKey<FormState>();
+
   final _refArticleController = TextEditingController();
   final _designationArticleController = TextEditingController();
   final _codeABarresController = TextEditingController();
@@ -40,7 +41,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _addArticle() async {
-    if (_formKey.currentState!.validate()) {
+    if (_addFormKey.currentState!.validate()) {
       final newArticle = Article(
         id: 0,
         refArticle: _refArticleController.text,
@@ -65,7 +66,7 @@ class _HomePageState extends State<HomePage> {
       builder: (context) => AlertDialog(
         title: const Text('Modifier Article'),
         content: Form(
-          key: _formKey,
+          key: _updateFormKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -99,6 +100,9 @@ class _HomePageState extends State<HomePage> {
                   if (value == null || value.isEmpty) {
                     return 'Veuillez saisir un code à barres';
                   }
+                  if (int.tryParse(value) == null) {
+                    return 'Veuillez saisir un code à barres valide';
+                  }
                   return null;
                 },
                 decoration: const InputDecoration(
@@ -115,7 +119,7 @@ class _HomePageState extends State<HomePage> {
           ),
           TextButton(
             onPressed: () async {
-              if (_formKey.currentState!.validate()) {
+              if (_updateFormKey.currentState!.validate()) {
                 final codeABarres =
                     int.tryParse(_codeABarresController.text) ?? 0;
 
@@ -181,7 +185,7 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Form(
-              key: _formKey,
+              key: _addFormKey,
               child: Column(
                 children: [
                   TextFormField(
@@ -214,6 +218,9 @@ class _HomePageState extends State<HomePage> {
                       if (value == null || value.isEmpty) {
                         return 'Veuillez saisir un code à barres';
                       }
+                      if (int.tryParse(value) == null) {
+                        return 'Veuillez saisir un code à barres valide';
+                      }
                       return null;
                     },
                     decoration: const InputDecoration(
@@ -233,12 +240,9 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const StockPage()),
-          );
+          Navigator.pushNamed(context, '/entete');
         },
-        child: const Icon(Icons.inventory), // Utilisez un icone Inventaire
+        child: const Icon(Icons.list),
       ),
     );
   }
